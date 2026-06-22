@@ -214,6 +214,24 @@
   .strategy-card textarea:focus { border-color: var(--violet); background: white; }
   .strategy-card textarea::placeholder { color: #C4C3BE; }
 
+  /* ── Global placeholder color ── */
+  textarea::placeholder,
+  input::placeholder { color: #C4C3BE; }
+
+  /* ── Print / PDF styles ── */
+  @media print {
+    body { background: white; font-size: 12px; }
+    .header, .btn-row, .step-tab, .progress-bar-wrap, .add-project-btn, .toast { display: none !important; }
+    .step-panel { display: block !important; }
+    .section-eyebrow { color: #6C47FF; }
+    .summary-project-card, .project-eval-card, .summary-reflection, .strategy-card { break-inside: avoid; border: 1px solid #ccc; margin-bottom: 16px; }
+    .score-pill.feasibility { background: #DCFCE7; color: #16A34A; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .score-pill.excitement { background: #FEF3DC; color: #C97A00; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .recommended-badge { background: #EDE8FF; color: #6C47FF; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    textarea { border: 1px solid #ddd; resize: none; }
+    h1.section-title { font-size: 1.4rem; }
+  }
+
   /* ── AI help button ── */
   .ai-help-btn {
     display: inline-flex;
@@ -941,38 +959,12 @@ function buildSummary() {
 }
 
 function downloadSummary() {
-  let text = 'PYTHON AI PROJECT BRAINSTORM - SUMMARY\n';
-  text += '='.repeat(40) + '\n\n';
-
-  text += 'PART 1: IDEAS\n' + '-'.repeat(20) + '\n';
-  const strats = ['Personal Need','Daily Life Problem','Hobby','Track & Optimise','Automation'];
-  ['s1','s2','s3','s4','s5'].forEach((id, i) => {
-    const val = document.getElementById(id)?.value;
-    if (val) text += `Strategy ${i+1} (${strats[i]}): ${val}\n\n`;
-  });
-
-  text += '\nPART 2: PROJECTS\n' + '-'.repeat(20) + '\n';
-  for (let i = 1; i <= projectCount; i++) {
-    const name = document.getElementById(`pname-${i}`)?.value || `Project ${i}`;
-    const goals = document.getElementById(`pgoals-${i}`)?.value || '';
-    const libs = document.getElementById(`plibs-${i}`)?.value || '';
-    const challenges = document.getElementById(`pchallenges-${i}`)?.value || '';
-    const feas = document.getElementById(`pfeas-${i}`)?.value;
-    const excite = document.getElementById(`pexcite-${i}`)?.value;
-    text += `\n${name}\nGoals: ${goals}\nLibraries/Tools: ${libs}\nChallenges: ${challenges}\nFeasibility: ${feas}/10\nExcitement: ${excite}/10\n`;
-  }
-
-  text += '\nPART 3: REFLECTION\n' + '-'.repeat(20) + '\n';
-  text += `Most excited about:\n${document.getElementById('r1').value || '(not answered)'}\n\n`;
-  text += `Scoping it down:\n${document.getElementById('r2').value || '(not answered)'}\n\n`;
-  text += `Next step:\n${document.getElementById('r3').value || '(not answered)'}\n`;
-
-  const blob = new Blob([text], { type: 'text/plain' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'project-brainstorm.txt';
-  a.click();
-  showToast('Summary downloaded!');
+  // Make sure summary is built before printing
+  buildSummary();
+  setTimeout(() => {
+    window.print();
+    showToast('Use "Save as PDF" in the print dialog!');
+  }, 150);
 }
 
 function showToast(msg) {
